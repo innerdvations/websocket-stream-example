@@ -4,10 +4,16 @@ import WebSocket, { createWebSocketStream, WebSocketServer } from 'ws';
 const wss = new WebSocketServer({ port: 8080 });
 console.log('started server on http://localhost:8080');
 
+let totalBytes = 0;
 wss.on('connection', function connection(ws) {
   ws.on('message', function message(data) {
-    console.log('received bytes:', Buffer.byteLength(data.toString()));
-    if (data === null) console.log('done');
+    const len = Buffer.byteLength(data.toString()); // probably not right
+    console.log('received bytes:', len);
+    totalBytes += len;
+  });
+
+  ws.on('close', () => {
+    console.log(`closing after writing ${totalBytes} bytes`);
   });
 
   ws.send('something');
